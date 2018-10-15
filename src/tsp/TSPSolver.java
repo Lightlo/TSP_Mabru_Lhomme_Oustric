@@ -1,4 +1,5 @@
 package tsp;
+import java.util.ArrayList; 
 
 /**
  * 
@@ -74,15 +75,51 @@ public class TSPSolver {
 		// Example of a time loop
 		long startTime = System.currentTimeMillis();
 		long spentTime = 0;
+		
+		ArrayList<Integer> villes_non_visitees = Liste_Villes();
+		int n = villes_non_visitees.size();
+		this.m_solution.setCityPosition(villes_non_visitees.get(0), 0);//ajoute ville 0 à la 1ere place de la solution
+		int nb_villes_placees = 1; //nb de ville dans solution
 		do
 		{
-			// TODO
-			// Code a loop base on time here
+			villes_non_visitees=plus_proche_voisin(n,nb_villes_placees,villes_non_visitees);
+			// int index_depart=0;
+			
+			nb_villes_placees ++;
+			n--;
+			
 			spentTime = System.currentTimeMillis() - startTime;
-		}while(spentTime < (m_timeLimit * 1000 - 100) );
-		
+		}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
+		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
+	}
+	
+	//-----------------------------
+	//-----FONCTIONS ANNEXES-------
+	//-----------------------------
+	
+	public ArrayList<Integer> Liste_Villes(){
+		ArrayList<Integer> villes = new ArrayList<Integer>();
+		for(int i=0; i<this.m_instance.getNbCities();i++) {
+			villes.add(i);
+		}
+		return villes;
 	}
 
+	public ArrayList<Integer> plus_proche_voisin(int n, int t, ArrayList<Integer> villes_non_visitees) throws Exception{
+		int index_plusproche = 1;
+		long dist_min = this.m_instance.getDistances(villes_non_visitees.get(0), villes_non_visitees.get(1));//init longueur min
+		for(int i=2;i<n;i++) { // cherche ville la plus proche dans le tableau
+			if(this.m_instance.getDistances(villes_non_visitees.get(0), villes_non_visitees.get(i))<dist_min) {
+				index_plusproche = i;
+				dist_min=this.m_instance.getDistances(villes_non_visitees.get(0), villes_non_visitees.get(index_plusproche));
+			}
+		}
+		this.m_solution.setObjectiveValue(this.m_solution.getObjectiveValue()+dist_min); //incrémentation de la longueur tot
+		villes_non_visitees.set(0,villes_non_visitees.get(index_plusproche)); //on met à l'indice 0 la prochaine ville à étudier
+		this.m_solution.setCityPosition(villes_non_visitees.get(0), t); //ajoute ville la plus proche a la solution
+		villes_non_visitees.remove(index_plusproche);//enleve ville visitee de l'arraylist
+		return villes_non_visitees;
+	}
 	// -----------------------------
 	// ----- GETTERS / SETTERS -----
 	// -----------------------------
