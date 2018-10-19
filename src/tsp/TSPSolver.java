@@ -97,6 +97,8 @@ public class TSPSolver {
 	//-----FONCTIONS ANNEXES-------
 	//-----------------------------
 	
+	
+	
 	public ArrayList<Integer> Liste_Villes(){
 		ArrayList<Integer> villes = new ArrayList<Integer>();
 		for(int i=0; i<this.m_instance.getNbCities();i++) {
