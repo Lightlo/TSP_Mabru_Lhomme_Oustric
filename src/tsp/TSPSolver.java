@@ -92,13 +92,16 @@ public class TSPSolver {
 		}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
 		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
 		
+		this.m_solution.evaluate();
+		
+		
 		//Local Search
 		Solution candidat = this.m_solution.copy();
 		long score_candidat = this.m_solution.getObjectiveValue();
 		long score_solution = candidat.getObjectiveValue();
 		boolean cont;
 		do {
-			 cont = false;
+			cont = false;
 			for(int i=1;i<=this.m_instance.getNbCities()-3;i++) {
 				for(int j=i+1;j<=this.m_instance.getNbCities()-2;j++) {
 					Solution provisoire = this.m_solution.copy();
@@ -115,8 +118,6 @@ public class TSPSolver {
 				score_solution=score_candidat;
 				this.m_solution=candidat;
 				this.m_solution.print(System.err);
-				System.out.println("----------obj--------");
-				System.out.println(m_solution.getObjectiveValue());
 			}
 			
 		} while (cont);
@@ -149,6 +150,7 @@ public class TSPSolver {
 		villes_non_visitees.set(0,villes_non_visitees.get(index_plusproche)); //on met à l'indice 0 la prochaine ville à étudier
 		this.m_solution.setCityPosition(villes_non_visitees.get(0), t); //ajoute ville la plus proche a la solution
 		villes_non_visitees.remove(index_plusproche);//enleve ville visitee de l'arraylist
+		System.out.println(this.m_solution.getObjectiveValue());
 		return villes_non_visitees;
 	}
 	

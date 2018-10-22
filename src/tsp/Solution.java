@@ -279,13 +279,6 @@ public class Solution{
 
 	//i<j 
 	public void swap (int i, int j) throws Exception {
-		/*
-		ArrayList<Integer> city = new ArrayList<Integer>();
-		for (int k=0; k<this.m_cities.length; k++) {
-			city.add(this.m_cities[k]);
-		}
-		*/
-		
 		int ville_i = this.m_cities[i];
 		int ville_j = this.m_cities[j];
 		long excedent = this.m_instance.getDistances(this.m_cities[i-1],this.m_cities[i])
