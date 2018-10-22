@@ -120,6 +120,7 @@ public class TSPSolver {
 		villes_non_visitees.remove(index_plusproche);//enleve ville visitee de l'arraylist
 		return villes_non_visitees;
 	}
+	
 	// -----------------------------
 	// ----- GETTERS / SETTERS -----
 	// -----------------------------
