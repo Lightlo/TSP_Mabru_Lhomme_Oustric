@@ -1,6 +1,7 @@
 package tsp;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -278,21 +279,28 @@ public class Solution{
 
 	//i<j 
 	public void swap (int i, int j) throws Exception {
+		/*
+		ArrayList<Integer> city = new ArrayList<Integer>();
+		for (int k=0; k<this.m_cities.length; k++) {
+			city.add(this.m_cities[k]);
+		}
+		*/
+		
 		int ville_i = this.m_cities[i];
 		int ville_j = this.m_cities[j];
-		long excedent = this.m_instance.getDistances(i-1, i)
-						+this.m_instance.getDistances(j, j+1);
+		long excedent = this.m_instance.getDistances(this.m_cities[i-1],this.m_cities[i])
+						+this.m_instance.getDistances(this.m_cities[j], this.m_cities[j+1]);
 		if (j-i>1) {
-			excedent += this.m_instance.getDistances(j-1, j)
-						+this.m_instance.getDistances(i, i+1);		
+			excedent += this.m_instance.getDistances(this.m_cities[j-1],this.m_cities[j])
+						+this.m_instance.getDistances(this.m_cities[i],this.m_cities[i+1]);		
 		}
 		this.m_cities[i]=ville_j;
 		this.m_cities[j]=ville_i;
-		long new_distance = this.m_instance.getDistances(i-1, i)
-							+this.m_instance.getDistances(j, j+1);
+		long new_distance = this.m_instance.getDistances(this.m_cities[i-1],this.m_cities[i])
+							+this.m_instance.getDistances(this.m_cities[j],this.m_cities[j+1]);
 		if (j-i>1) {
-			new_distance += this.m_instance.getDistances(j-1, j)
-							+this.m_instance.getDistances(i, i+1);		
+			new_distance += this.m_instance.getDistances(this.m_cities[j-1],this.m_cities[j])
+							+this.m_instance.getDistances(this.m_cities[i],this.m_cities[i+1]);		
 		}
 		this.m_objectiveValue+= new_distance - excedent;
 	}

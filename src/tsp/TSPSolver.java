@@ -96,9 +96,11 @@ public class TSPSolver {
 		Solution candidat = this.m_solution.copy();
 		long score_candidat = this.m_solution.getObjectiveValue();
 		long score_solution = candidat.getObjectiveValue();
+		boolean cont;
 		do {
-			for(int i=1;i<this.m_instance.getNbCities()-3;i++) {
-				for(int j=i+1;j<this.m_instance.getNbCities()-2;j++) {
+			 cont = false;
+			for(int i=1;i<=this.m_instance.getNbCities()-3;i++) {
+				for(int j=i+1;j<=this.m_instance.getNbCities()-2;j++) {
 					Solution provisoire = this.m_solution.copy();
 					provisoire.swap(i,j);
 					long score_provisoire =provisoire.getObjectiveValue();
@@ -109,11 +111,16 @@ public class TSPSolver {
 				}
 			}
 			if(score_solution>score_candidat) {
+				cont=true;
 				score_solution=score_candidat;
 				this.m_solution=candidat;
+				this.m_solution.print(System.err);
+				System.out.println("----------obj--------");
+				System.out.println(m_solution.getObjectiveValue());
 			}
 			
-		} while (score_solution>score_candidat);	
+		} while (cont);
+		
 	}
 	
 	//-----------------------------
