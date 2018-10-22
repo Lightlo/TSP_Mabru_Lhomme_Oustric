@@ -275,4 +275,25 @@ public class Solution{
 	public String getError() {
 		return m_error;
 	}
+
+	//i<j 
+	public void swap (int i, int j) throws Exception {
+		int ville_i = this.m_cities[i];
+		int ville_j = this.m_cities[j];
+		long excedent = this.m_instance.getDistances(i-1, i)
+						+this.m_instance.getDistances(j, j+1);
+		if (j-i>1) {
+			excedent += this.m_instance.getDistances(j-1, j)
+						+this.m_instance.getDistances(i, i+1);		
+		}
+		this.m_cities[i]=ville_j;
+		this.m_cities[j]=ville_i;
+		long new_distance = this.m_instance.getDistances(i-1, i)
+							+this.m_instance.getDistances(j, j+1);
+		if (j-i>1) {
+			new_distance += this.m_instance.getDistances(j-1, j)
+							+this.m_instance.getDistances(i, i+1);		
+		}
+		this.m_objectiveValue+= new_distance - excedent;
+	}
 }

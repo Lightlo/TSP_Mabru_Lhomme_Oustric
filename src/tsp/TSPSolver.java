@@ -91,11 +91,35 @@ public class TSPSolver {
 			spentTime = System.currentTimeMillis() - startTime;
 		}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
 		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
+		
+		//Local Search
+		Solution candidat = this.m_solution.copy();
+		long score_candidat = this.m_solution.getObjectiveValue();
+		long score_solution = candidat.getObjectiveValue();
+		do {
+			for(int i=1;i<this.m_instance.getNbCities()-3;i++) {
+				for(int j=i+1;j<this.m_instance.getNbCities()-2;j++) {
+					Solution provisoire = this.m_solution.copy();
+					provisoire.swap(i,j);
+					long score_provisoire =provisoire.getObjectiveValue();
+					if(score_provisoire<score_candidat) {
+						score_candidat=score_provisoire;
+						candidat=provisoire;
+					}
+				}
+			}
+			if(score_solution>score_candidat) {
+				score_solution=score_candidat;
+				this.m_solution=candidat;
+			}
+			
+		} while (score_solution>score_candidat);	
 	}
 	
 	//-----------------------------
 	//-----FONCTIONS ANNEXES-------
 	//-----------------------------
+
 	
 	public ArrayList<Integer> Liste_Villes(){
 		ArrayList<Integer> villes = new ArrayList<Integer>();
