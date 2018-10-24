@@ -3,10 +3,10 @@ import java.util.ArrayList;
 public class Fourmi {
 	
 	private Solution Trajet_fourmi; // rempli dans l'ordre des villes par lesquelles est passée la fourmi
-	
 	private boolean visited;												 
 	private int position;
 	private Instance instance;
+	private ArrayList<Integer> ville_non_visitees;
 	
 	
 	public Fourmi(Instance instance) throws Exception{ //constructeur pour les fourmis 
