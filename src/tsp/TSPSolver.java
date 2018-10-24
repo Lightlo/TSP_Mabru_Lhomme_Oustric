@@ -92,7 +92,7 @@ public class TSPSolver {
 		}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
 		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
 		
-		this.m_solution.evaluate(); //pour avoir le score correcte
+		this.m_solution.evaluate();
 		
 		
 		//Local Search

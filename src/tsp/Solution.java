@@ -279,22 +279,40 @@ public class Solution{
 
 	//i<j 
 	public void swap (int i, int j) throws Exception {
-		int ville_i = this.m_cities[i];
+		int ville_i = this.m_cities[i]; //On garde en mémoire les deux villes concernées
 		int ville_j = this.m_cities[j];
+		
+		/* On calcule la distance qu'on devra supprimer sur la solution final.
+		 * Si les deux villes sont cote à cote dans le tableau, la distance
+		 * 'en trop' est celle entre les villes i et i-1, et celle entre les
+		 * villes j et j+1 puisque i<j (voir boucle for TSPSolver)*/
+		
 		long excedent = this.m_instance.getDistances(this.m_cities[i-1],this.m_cities[i])
 						+this.m_instance.getDistances(this.m_cities[j], this.m_cities[j+1]);
+		
+		/* Si les deux villes ne sont pas cote à cote dans le tableau, on ajoute
+		 * à l'excedent les distances entre les villes i et i+1, et celle entre 
+		 * les ville j et j-1*/
+		
 		if (j-i>1) {
 			excedent += this.m_instance.getDistances(this.m_cities[j-1],this.m_cities[j])
 						+this.m_instance.getDistances(this.m_cities[i],this.m_cities[i+1]);		
 		}
-		this.m_cities[i]=ville_j;
-		this.m_cities[j]=ville_i;
+		
+		this.m_cities[i]=ville_j; //Après avoir calculé l'excedent, on inverse la 
+		this.m_cities[j]=ville_i; //position des deux villes
+		
+		/* Comme précédemment, on calcule la distance, cette fois-ci à ajouter
+		 * au score final avec la nouvelle position des villes (même principe
+		 * et même calcul que précédemment)*/
+		
 		long new_distance = this.m_instance.getDistances(this.m_cities[i-1],this.m_cities[i])
 							+this.m_instance.getDistances(this.m_cities[j],this.m_cities[j+1]);
 		if (j-i>1) {
 			new_distance += this.m_instance.getDistances(this.m_cities[j-1],this.m_cities[j])
 							+this.m_instance.getDistances(this.m_cities[i],this.m_cities[i+1]);		
 		}
-		this.m_objectiveValue+= new_distance - excedent;
+		
+		this.m_objectiveValue+= new_distance - excedent; //Calcul du nouveau score final
 	}
 }
