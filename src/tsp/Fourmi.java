@@ -21,7 +21,7 @@ public class Fourmi {
 			this.Trajet_fourmi.add(0);
 			this.Proba_ville.add(0.0);
 		}*/ // initialisation vide utile ?
-		//
+		
 		
 	}
 	
