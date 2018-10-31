@@ -74,7 +74,7 @@ public class Fourmi {
 		for(int i=0; i<Intervalle_proba.size();i++) {
 			if(ville_retenue == false && nb_hasard<Intervalle_proba.get(i)) {
 				ville_retenue = true; // dès que nb_hasard appartient à une "tranche"
-				ville_suivante = i; // on note le numéro de la ville à laquelle cette tranche corrsepond 
+				ville_suivante = this.ville_non_visitees.get(i); // on note le numéro de la ville à laquelle cette tranche correspond 
 									// cette ville sera celle vers laquelle la fourmi ira
 			}
 		}
