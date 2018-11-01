@@ -17,7 +17,8 @@ public class Cycle_Fourmi {
 		}
 	}
 	
-	public void Ajout_Pheromones(Fourmi fourmi, Double Q) throws Exception{ // rajoutte à la matrice les phéromones déposées par les fourmis
+	public void Ajout_Pheromones(Fourmi fourmi, Double Q) throws Exception{ // méthode  à appeler  pour chaque fourmi d'un cycle
+																			// rajoutte à la matrice les phéromones déposées par les fourmis
 																			// Q = paramètre influençant la quantité de phéromone déposée
 		for(int i=1;i<this.instance.getNbCities();i++) {
 			this.Pheromone_trajet_entre_deux_villes[fourmi.getTrajet_fourmi().getCity(i)][fourmi.getTrajet_fourmi().getCity(i-1)]+=fourmi.depot_de_pheromone(Q);
@@ -27,7 +28,8 @@ public class Cycle_Fourmi {
 	}
 	
 	
-	public void Evaporation_Pheromones(Double rho) { // enleve les phéromones évaporées (rho = coeff d'évaporation)(0<rho<1)
+	public void Evaporation_Pheromones(Double rho) {// méthode à appeler une seule fois et à la fin de chaque cycle (de k fourmis) 
+													// enleve les phéromones évaporées (rho = coeff d'évaporation)(0<rho<1)
 		for(int i=0;i<this.instance.getNbCities();i++) { 
 			for(int j=0; j<this.instance.getNbCities();j++) { // parcourt de l'ensemble de la matrice
 				this.Pheromone_trajet_entre_deux_villes[i][j] = (1-rho)*this.Pheromone_trajet_entre_deux_villes[i][j];
