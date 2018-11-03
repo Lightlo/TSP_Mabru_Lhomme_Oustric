@@ -8,7 +8,8 @@ public class Fourmi {
 	private Instance instance;
 	private ArrayList<Integer> ville_non_visitees;
 	
-	 		
+	 	
+	
 	public Fourmi(Instance instance) throws Exception{ //constructeur pour les fourmis 
 		this.instance=instance;
 		this.position=0;
