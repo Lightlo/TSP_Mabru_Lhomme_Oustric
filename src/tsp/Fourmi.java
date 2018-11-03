@@ -82,5 +82,9 @@ public class Fourmi {
 		
 	}
 	
+	public static void main(String[] args) {
+		
+	}
+	
 	
 }

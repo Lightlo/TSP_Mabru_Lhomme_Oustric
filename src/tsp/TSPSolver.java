@@ -91,36 +91,35 @@ public class TSPSolver {
 			spentTime = System.currentTimeMillis() - startTime;
 		}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
 		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
+		this.m_solution.evaluate(); //pour avoir le score de la méthode plus proche voisin
 		
-		this.m_solution.evaluate();
 		
+		//Recherche local sur le plus proche voisin
 		
-		//Local Search
-		Solution candidat = this.m_solution.copy();
+		/*Solution candidat = this.m_solution.copy(); //Copie de la solution plus proche voisin sur laquelle on fera des permutations + itérations
 		long score_candidat = this.m_solution.getObjectiveValue();
 		long score_solution = candidat.getObjectiveValue();
-		boolean cont;
+		boolean cont; //Condition d'arrêt de la boucle
 		do {
 			cont = false;
-			for(int i=1;i<=this.m_instance.getNbCities()-3;i++) {
-				for(int j=i+1;j<=this.m_instance.getNbCities()-2;j++) {
-					Solution provisoire = this.m_solution.copy();
-					provisoire.swap(i,j);
+			for(int i=1;i<=this.m_instance.getNbCities()-3;i++) { 
+				for(int j=i+1;j<=this.m_instance.getNbCities()-2;j++) { //i<j pour éviter les doublons
+					Solution provisoire = this.m_solution.copy(); //2ème copie de la solution pour tester si ell est meilleure ou non
+					provisoire.swap(i,j); //permutations de i et j dans le tableau des villes (voir classe Solution pour fonction swap) 
 					long score_provisoire =provisoire.getObjectiveValue();
-					if(score_provisoire<score_candidat) {
-						score_candidat=score_provisoire;
-						candidat=provisoire;
+					if(score_provisoire<score_candidat) { //test du score: 
+						score_candidat=score_provisoire; //si il est inférieur au candidat proposé, on garde celui-ci pour la prochaine itération
+						candidat=provisoire; //et devient le candidat
 					}
 				}
 			}
-			if(score_solution>score_candidat) {
-				cont=true;
-				score_solution=score_candidat;
+			if(score_solution>score_candidat) { //Si la condition est vérifié: le score est amélioré
+				cont=true; //Condition d'arrêt devient vrai
+				score_solution=score_candidat; //La solution finale prend alors la valeur du candidat
 				this.m_solution=candidat;
 				this.m_solution.print(System.err);
 			}
-			
-		} while (cont);
+		} while (cont);*/
 		
 	}
 	
