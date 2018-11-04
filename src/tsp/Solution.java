@@ -1,7 +1,6 @@
 package tsp;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -289,7 +288,17 @@ public class Solution{
 		return m_error;
 	}
 
-	//i<j 
+	// -----------------------------
+	// --------- METHODS -----------
+	// -----------------------------
+
+	/**
+	 * Swap les villes aux positions i et j (on suppose i<j)
+	 * et re-évalue la longueur de la solution m_objectiveValue
+	 * @param i la position de la ville_i
+	 * @param j la position de la ville_j
+	 * @throws Exception returns an error if i or j are not valid city numbers.
+	 */
 	public void swap (int i, int j) throws Exception {
 		int ville_i = this.m_cities[i]; //On garde en mémoire les deux villes concernées
 		int ville_j = this.m_cities[j];
@@ -326,5 +335,43 @@ public class Solution{
 		}
 		
 		this.m_objectiveValue+= new_distance - excedent; //Calcul du nouveau score final
+	}
+	
+	/**
+	 * Swap un segment de villes, des positions i à j comprises (on suppose 0<i<j<NbCities)
+	 * et re-évalue la longueur de la solution m_objectiveValue
+	 * @param i la position de la ville_i
+	 * @param j la position de la ville_j
+	 * @return une solution après avoir recopier les villes aux positions [0,i] dans l'ordre, puis [i+1,j] en sens inverse, enfin [j+1, NbCities] dans l'ordre
+	 * @throws Exception returns an error if i or j are not valid city numbers.
+	 */
+	public Solution TwoOpt_Swap( int i, int j ) throws Exception {
+	    int NbCities = this.getInstance().getNbCities();
+	    Solution new_solution = new Solution(this.getInstance());
+	    
+	    //Dans la solution new_solution,
+	    //On recopie les villes de la solution des positions 0 à (i-1) (incluses) dans l'ordre
+	    for (int k=0; k<i; k++) {
+	        new_solution.setCityPosition(this.getCity(k), k);
+	    }
+	         
+	    //Puis, on recopie en sens inverse, les villes de la solution des positions i à j (incluses)
+	    for (int k=i; k<=j; k++) {
+	        new_solution.setCityPosition(this.getCity(j-k+i), k);
+	    }
+	 
+	    //Enfin, on recopie les villes de la solution des positions depuis (j+1) (inclus) dans l'ordre
+	    for (int k=j+1; k<NbCities+1;k++) {
+	        new_solution.setCityPosition(this.getCity(k), k);
+	    }
+	    
+	    //Mise à jour de l'objectiveValue de la solution new_solution
+	    new_solution.setObjectiveValue( this.getObjectiveValue()
+	    		- this.getInstance().getDistances(this.getCity(i-1), this.getCity(i))
+	    		- this.getInstance().getDistances(this.getCity(j), this.getCity(j+1))
+	    		+ this.getInstance().getDistances(this.getCity(i-1), this.getCity(j))
+	    		+ this.getInstance().getDistances(this.getCity(i), this.getCity(j+1)) );
+	    
+	    return new_solution;
 	}
 }

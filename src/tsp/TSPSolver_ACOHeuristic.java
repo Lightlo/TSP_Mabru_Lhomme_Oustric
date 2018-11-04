@@ -76,24 +76,43 @@ public class TSPSolver_ACOHeuristic {
 		long startTime = System.currentTimeMillis();
 		long spentTime = 0;
 		
+		//AntColonyOptimization
+		//**
 		//Initialisation de la méthode heuristique ACO (Ant Colony Optimization)
 		AntColonyOptimization aco = new AntColonyOptimization(m_instance);
 		Ant first_ant = new Ant(aco);
-		int i = 1;
 		m_solution = first_ant.processAnt();
 		
+		//Initialisation de la population de fourmi pour un cycle/itération avant évaporation
+		AntCycle ant_cycle = new AntCycle(aco.getInstance().getNbCities());
+		int i = 1; //Compteur des cycles
+		int k = AntColonyOptimization.NB_ANTS;
+		
+		//Recherche heuristique
 		while (spentTime < m_timeLimit * 1000) {
 			Ant new_ant = new Ant(aco);
 			Solution candidat = new_ant.processAnt();
+			ant_cycle.stockPheromoneDepositAnt(candidat);
 			if (candidat.getObjectiveValue()<m_solution.getObjectiveValue()) {
 				m_solution = candidat;
-				System.out.println("Fourmi " +i+ " , distance: " + m_solution.getObjectiveValue());
-				//PRINT SI AMELIORATION
+				//Affichage lorsque amélioration
+				System.out.println("Cycle : " +i+ " , Ant " +(AntColonyOptimization.NB_ANTS - k + 1) + " , new_distance: " + m_solution.getObjectiveValue());	
 			}
-			i++;
-		
+			k--;
+			if (k==0) { //Fin du cycle/itération : aco.NB_ANTS sont allées dans le parcours
+				//Les pistes de phéromones s'évaporent en partie et on ajoute les phéromones qui viennent d'être déposées
+				aco.evaporationPlusAddDeposits_EndCycle(ant_cycle);
+				//On prépare un nouveau cycle/itération : 
+				//  - aco.NB_ANTS vont parcourir le parcours
+				//  - le stock des dépôts de pheromones du cycle est réinitialisé (mis à 0.0)
+				k = AntColonyOptimization.NB_ANTS;
+				ant_cycle = new AntCycle(aco.getInstance().getNbCities());
+				i++;
+			}
+			
 			spentTime = System.currentTimeMillis() - startTime;
 		}
+		//*/
 				
 	}
 	
