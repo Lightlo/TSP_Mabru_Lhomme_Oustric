@@ -2,7 +2,10 @@ package tsp;
 
 public class AntColonyOptimization {
 	
-	public static final int NB_ANTS=500;
+	
+	//Définition des constantes des calculs de l'ACO
+	public static final int NB_ANTS=1000;
+	public static final double RHO = 0.1; // 0<RHO<1 : taux d'évaporation des phéromones
 	
 	//ATTRIBUTS
 	/** Données du problème associé */
@@ -27,7 +30,8 @@ public class AntColonyOptimization {
 		double level_pheromone;
 		for (int i=0;i<NbCities;i++) {
 			for (int j=0;j<NbCities;j++) {
-				level_pheromone = Math.random();
+				level_pheromone = 1;
+				//level_pheromone = Math.random();
 				this.pheromoneLevels_between_cities[i][j] = level_pheromone;
 			}
 		}
@@ -59,7 +63,7 @@ public class AntColonyOptimization {
 	}
 	
 	/**
-	 * Set le niveau de phéromones du trajet de la ville i à la ville jcity indexCity at position position in the solution.<br>
+	 * Set le niveau de phéromones du trajet de la ville i à la ville j
 	 *
 	 * @param city_i ville i
 	 * @param city_j ville j
@@ -71,12 +75,27 @@ public class AntColonyOptimization {
 	
 	//METHODS
 	
-	public void evaporationPheromones_EndCycle (double evaporationRateRho) {
+	public void evaporationPheromones_EndCycle () {
 		for(int i=0;i<this.getInstance().getNbCities();i++) { 
-			for(int j=0; j<this.getInstance().getNbCities();j++) { // parcourt de l'ensemble de la matrice
-				this.setPheromoneLevel(i, j, (1-evaporationRateRho)*this.getPheromoneLevel(i,j));
+			for(int j=0; j<this.getInstance().getNbCities();j++) { // parcours de l'ensemble de la matrice
+				this.setPheromoneLevel(i, j, (1-RHO)*this.getPheromoneLevel(i,j));
 			}
 		}
 	}
-
+	
+	public void addPheromoneDeposits_EndCycle(AntCycle ant_cycle) {
+		for(int i=0;i<this.getInstance().getNbCities();i++) { 
+			for(int j=0; j<this.getInstance().getNbCities();j++) { // parcours de l'ensemble de la matrice
+				this.setPheromoneLevel(i, j, this.getPheromoneLevel(i,j)+ ant_cycle.getPheromoneDeposit(i, j));
+			}
+		}
+	}
+	
+	public void evaporationPlusAddDeposits_EndCycle(AntCycle ant_cycle) {
+		for(int i=0;i<this.getInstance().getNbCities();i++) { 
+			for(int j=0; j<this.getInstance().getNbCities();j++) { // parcours de l'ensemble de la matrice
+				this.setPheromoneLevel(i, j, (1-RHO)*this.getPheromoneLevel(i,j) + ant_cycle.getPheromoneDeposit(i, j));
+			}
+		}
+	}
 }

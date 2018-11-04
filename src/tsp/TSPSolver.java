@@ -76,6 +76,44 @@ public class TSPSolver {
 		long startTime = System.currentTimeMillis();
 		long spentTime = 0;
 		
+		//Initialisation de la méthode heuristique ACO (Ant Colony Optimization)
+		AntColonyOptimization aco = new AntColonyOptimization(m_instance);
+		Ant first_ant = new Ant(aco);
+		m_solution = first_ant.processAnt();
+		
+		//Initialisation de la population de fourmi pour un cycle/itération avant évaporation
+		AntCycle ant_cycle = new AntCycle(aco.getInstance().getNbCities());
+		int i = 1; //Compteur des cycles
+		int k = AntColonyOptimization.NB_ANTS;
+		System.out.println(aco.getInstance().getNbCities());
+		System.out.println(ant_cycle.getNbCities());
+		
+		//Recherche heuristique
+		while (spentTime < m_timeLimit * 1000) {
+			Ant new_ant = new Ant(aco);
+			Solution candidat = new_ant.processAnt();
+			ant_cycle.stockPheromoneDepositAnt(candidat);
+			if (candidat.getObjectiveValue()<m_solution.getObjectiveValue()) {
+				m_solution = candidat;
+				//Affichage lorsque amélioration
+				System.out.println("Cycle : " +i+ " , Ant " +(AntColonyOptimization.NB_ANTS - k + 1) + " , new_distance: " + m_solution.getObjectiveValue());	
+			}
+			k--;
+			if (k==0) { //Fin du cycle/itération : aco.NB_ANTS sont allées dans le parcours
+				//Les pistes de phéromones s'évaporent en partie et on ajoute les phéromones qui viennent d'être déposées
+				aco.evaporationPlusAddDeposits_EndCycle(ant_cycle);
+				//On prépare un nouveau cycle/itération : 
+				//  - aco.NB_ANTS vont parcourir le parcours
+				//  - le stock des dépôts de pheromones du cycle est réinitialisé (mis à 0.0)
+				k = AntColonyOptimization.NB_ANTS;
+				ant_cycle = new AntCycle(aco.getInstance().getNbCities());
+				i++;
+			}
+			
+			spentTime = System.currentTimeMillis() - startTime;
+		}
+		
+		/**
 		ArrayList<Integer> villes_non_visitees = Liste_Villes();
 		int n = villes_non_visitees.size();
 		this.m_solution.setCityPosition(villes_non_visitees.get(0), 0);//ajoute ville 0 à la 1ere place de la solution
@@ -92,11 +130,12 @@ public class TSPSolver {
 		}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
 		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
 		this.m_solution.evaluate(); //pour avoir le score de la méthode plus proche voisin
-		
+		*/
 		
 		//Recherche local sur le plus proche voisin
 		
-		/*Solution candidat = this.m_solution.copy(); //Copie de la solution plus proche voisin sur laquelle on fera des permutations + itérations
+		/**
+		Solution candidat = this.m_solution.copy(); //Copie de la solution plus proche voisin sur laquelle on fera des permutations + itérations
 		long score_candidat = this.m_solution.getObjectiveValue();
 		long score_solution = candidat.getObjectiveValue();
 		boolean cont; //Condition d'arrêt de la boucle
@@ -119,7 +158,8 @@ public class TSPSolver {
 				this.m_solution=candidat;
 				this.m_solution.print(System.err);
 			}
-		} while (cont);*/
+		} while (cont);
+		*/
 		
 	}
 	

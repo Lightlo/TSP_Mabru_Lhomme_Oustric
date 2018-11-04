@@ -1,12 +1,10 @@
 package tsp;
 
-import java.util.ArrayList;
-
 public class Ant {
 	
 	//Définition des constantes des calculs de l'ACO
-	public static final double Q = 0.005; // 0<Q<1 : ...
-	public static final double RHO = 0.2; // 0<RHO<1 : taux d'évaporation des phéromones
+	//public static final double Q = 0.005; // 0<Q<1 : ...
+	//public static final double RHO = 0.2; // 0<RHO<1 : taux d'évaporation des phéromones
 	public static final double ALPHA = 0.01; // 0<=ALPHA : ...
 	public static final double BETA = 9.5; // 1<=BETA : ...
 	public static final double GAMMA = 0.1; // 0<GAMMA<1 : ...
@@ -61,7 +59,7 @@ public class Ant {
 		while (NbVisitedCities<NbCities) {
 			path[NbVisitedCities] = j;
 			path_distance += this.getACO().getInstance().getDistances(i, j);
-			this.adjustPheromoneLevel(i,j,path_distance);
+			/** this.adjustPheromoneLevel(i,j,path_distance); */
 			this.getVisitedCities()[j] = true;
 			NbVisitedCities++;
 			i = j;
@@ -84,14 +82,15 @@ public class Ant {
 			}
 		}
 	}
+	/**
 	public void adjustPheromoneLevel(int i, int j, long path_distance) {
 		double oldPheromoneLevel = this.getACO().getPheromoneLevel(i,j);
-		//!!!! Cycle de k fourmis ? ou une par une ?
-		//double newPheromoneLevel = -oldPheromoneLevel + (Q/path_distance));
-		double newPheromoneLevel = ((1-RHO)*oldPheromoneLevel + (Q/path_distance));
-		//newPheromoneLevel est >0
+		// Cycle/Itération de NB_ANTS fourmis
+		double newPheromoneLevel = (oldPheromoneLevel + (Q/path_distance));
+		//double newPheromoneLevel = ((1-RHO)*oldPheromoneLevel + (Q/path_distance));
 		this.getACO().setPheromoneLevel(i, j, newPheromoneLevel);
 	}
+	*/
 	//Determine Next City J à visiter
 	public int getJ(int i) throws Exception {
 		double random = Math.random();
@@ -105,10 +104,15 @@ public class Ant {
 			random -= NextCitiesProbabilities[nextJ];
 			nextJ++;
 		}
-		return nextJ;
+		return (nextJ-1);
 	}
 	public double[] getNextCitiesProbabilities(int i) throws Exception {
+		//Initialisation du tableau des probabilités pour aller la ville suivante à visiter
 		double[] NextCitiesProbabilities = new double[NbCities];
+		for (int j=0;j<NbCities;j++) {
+			NextCitiesProbabilities[j] = 0.0;
+		}
+		//Construction du tableau des probabilités pour choisir la ville suivante à visiter
 		double denominator = this.getDenominatorProba(i, NextCitiesProbabilities);
 		for (int j=0;j<NbCities;j++) {
 			NextCitiesProbabilities[j] = (this.getNumeratorProba(i, j) / denominator);
@@ -117,7 +121,7 @@ public class Ant {
 	}
 	public double getDenominatorProba(int i, double[] NextCitiesProbabilities) throws Exception {
 		double denominator = 0.0;
-		for (int j=0;i<NbCities;j++) {
+		for (int j=0;j<NbCities;j++) {
 			if (!this.getVisitedCities()[j]) {
 				if (i==j) {
 					NextCitiesProbabilities[j]=0.0;
@@ -132,11 +136,11 @@ public class Ant {
 	public double getNumeratorProba (int i, int j) throws Exception {
 		double PheromoneLevel = this.getACO().getPheromoneLevel(i, j);
 		if (PheromoneLevel != 0.0 && !this.getVisitedCities()[j]) {
-			//return (GAMMA + Math.pow(PheromoneLevel,ALPHA) * Math.pow((1/this.getACO().getInstance().getDistances(i, j)), BETA));
-			return (Math.pow(PheromoneLevel,ALPHA) * Math.pow((1/this.getACO().getInstance().getDistances(i, j)), BETA));
+			return (GAMMA + Math.pow(PheromoneLevel,ALPHA) * Math.pow((1/this.getACO().getInstance().getDistances(i, j)), BETA));
+			//return (Math.pow(PheromoneLevel,ALPHA) * Math.pow((1/this.getACO().getInstance().getDistances(i, j)), BETA));
 		} else {
 			return 0.0;
 		}
 	}
-
+	
 }

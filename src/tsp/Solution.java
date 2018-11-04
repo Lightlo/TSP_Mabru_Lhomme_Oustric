@@ -281,7 +281,7 @@ public class Solution{
 					+ m_nbCities);
 		return m_cities[position];
 	}
-
+	
 	/**
 	 * @return error code returned by `validate`
 	 */
