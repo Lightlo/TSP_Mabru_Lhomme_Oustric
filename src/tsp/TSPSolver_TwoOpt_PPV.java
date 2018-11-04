@@ -80,6 +80,7 @@ public class TSPSolver_TwoOpt_PPV {
 		 
 	    //On initialise la solution à la solution du PPV    
 	    this.m_solution = this.PPV();
+	    //**
 	    Solution new_solution;
 	    
 	    int k = 0;
@@ -103,6 +104,7 @@ public class TSPSolver_TwoOpt_PPV {
 			
 			spentTime = System.currentTimeMillis() - startTime;
 		}
+		//*/
 	}
 	
 	//-----------------------------
@@ -120,11 +122,17 @@ public class TSPSolver_TwoOpt_PPV {
 		int NbVisitedCities = 1; //Compteur du nb de villes dans la solution
 		
 		//Recherche du plus proche voisin (PPV) à chaque itération jusqu'à ce que toutes les villes soient visitées
-		while (NbVisitedCities < NbCities) {
+		while (NbVisitedCities < NbCities-1) {
 			UnvisitedCities = NextUnvisitedCitiesViaPPV(NbVisitedCities,UnvisitedCities);
 			NbVisitedCities ++;
 		}
 		
+		//Ajout de la dernière ville non visitée (dernier élément de l'ArrayList UnVisitedCities)
+		this.getSolution().setCityPosition(UnvisitedCities.get(1), NbVisitedCities);
+		//Ajout de la distance entre l'avant-dernière et la dernière ville visitées
+		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue()
+				+ this.getSolution().getInstance()
+					.getDistances( this.getSolution().getCity(NbCities-2), this.getSolution().getCity(NbCities-1)));
 		//Ajout de la ville d'origine (0) en tant que ville d'arrivée dans la solution
 		this.getSolution().setCityPosition(0,NbCities);
 		//Ajout de la distance entre l'ultime ville visitée et la ville d'arrivée
@@ -138,7 +146,7 @@ public class TSPSolver_TwoOpt_PPV {
 
 	public ArrayList<Integer> initializeUnvisitedCities(int NbCities){
 		ArrayList<Integer> UnvisitedCities = new ArrayList<Integer>();
-		for(int i=1; i<NbCities;i++) {
+		for(int i=0; i<NbCities;i++) {
 			UnvisitedCities.add(i);
 		}
 		return UnvisitedCities;
@@ -164,8 +172,8 @@ public class TSPSolver_TwoOpt_PPV {
 		//Mise à jour de la solution (contenu, objectiveValue) et de l'ArrayList des listes non visitées
 		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue() + PPVdistance);
 		UnvisitedCities.set(0,UnvisitedCities.get(PPVposition)); //On met à la position 0 le dernier PPV visité
-		this.getSolution().setCityPosition(UnvisitedCities.get(0), NbVisitedCities); //ajoute ville la plus proche a la solution
 		UnvisitedCities.remove(PPVposition); //Suppression de la ville visitée de l'ArrayList UnvisitedCities
+		this.getSolution().setCityPosition(UnvisitedCities.get(0), NbVisitedCities); //ajoute ville la plus proche a la solution
 		
 		return UnvisitedCities;
 	}
