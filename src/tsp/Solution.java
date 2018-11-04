@@ -109,6 +109,18 @@ public class Solution{
 		m_nbCities = instance.getNbCities();
 		m_cities = new int[m_nbCities + 1];
 	}
+	/**
+	 * Creates an object of the class Solution for the problem data loaded in Instance
+	 * @param instance The instance of the problem
+	 * @param cities The array of cities that constitutes the solution  
+	 * @param objValue The route cost because of the order in the array cities
+	 */
+	public Solution(Instance instance, int[] cities, long objValue) {
+		m_instance = instance;
+		m_nbCities = instance.getNbCities();
+		m_cities = cities;
+		m_objectiveValue = objValue;
+	}
 
 	/**
 	 * Creates a copy of this object solution
