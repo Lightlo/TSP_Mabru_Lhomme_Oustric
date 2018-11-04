@@ -70,23 +70,49 @@ public class TSPSolver {
 	 */
 	public void solve() throws Exception
 	{
-		m_solution.print(System.err);
+		//m_solution.print(System.err);
 		
 		// Example of a time loop
 		long startTime = System.currentTimeMillis();
 		long spentTime = 0;
 		
+		//Détermination Plus Proche Voisin
+		/**
+		ArrayList<Integer> villes_non_visitees = Liste_Villes();
+		int n = villes_non_visitees.size();
+		this.m_solution.setCityPosition(villes_non_visitees.get(0), 0);//ajoute ville 0 à la 1ere place de la solution
+		int nb_villes_placees = 1; //nb de ville dans solution
+		do
+		{
+			villes_non_visitees=plus_proche_voisin(n,nb_villes_placees,villes_non_visitees);
+			nb_villes_placees ++;
+			n--;
+			
+		} while(n>1);
+		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
+		this.m_solution.evaluate(); //pour avoir le score de la méthode plus proche voisin
+		//*/
+		
+		//AntColonyOptimization
+		//**
 		//Initialisation de la méthode heuristique ACO (Ant Colony Optimization)
 		AntColonyOptimization aco = new AntColonyOptimization(m_instance);
 		Ant first_ant = new Ant(aco);
 		m_solution = first_ant.processAnt();
 		
+		//Prise en compte de la solution PPV avec des dépôts de phéromones équivalent à un cycle
+		/**
+		AntCycle ant_cycle = new AntCycle(aco.getInstance().getNbCities());
+		for (int l=0;l<(AntColonyOptimization.NB_ANTS/10);l++) {
+			ant_cycle.stockPheromoneDepositAnt(m_solution);
+		}
+		aco.addPheromoneDeposits_EndCycle(ant_cycle);
+		//*/		
+		
 		//Initialisation de la population de fourmi pour un cycle/itération avant évaporation
 		AntCycle ant_cycle = new AntCycle(aco.getInstance().getNbCities());
 		int i = 1; //Compteur des cycles
 		int k = AntColonyOptimization.NB_ANTS;
-		System.out.println(aco.getInstance().getNbCities());
-		System.out.println(ant_cycle.getNbCities());
 		
 		//Recherche heuristique
 		while (spentTime < m_timeLimit * 1000) {
@@ -112,25 +138,29 @@ public class TSPSolver {
 			
 			spentTime = System.currentTimeMillis() - startTime;
 		}
+		//*/
 		
-		/**
-		ArrayList<Integer> villes_non_visitees = Liste_Villes();
-		int n = villes_non_visitees.size();
-		this.m_solution.setCityPosition(villes_non_visitees.get(0), 0);//ajoute ville 0 à la 1ere place de la solution
-		int nb_villes_placees = 1; //nb de ville dans solution
-		do
-		{
-			villes_non_visitees=plus_proche_voisin(n,nb_villes_placees,villes_non_visitees);
-			// int index_depart=0;
-			
-			nb_villes_placees ++;
-			n--;
-			
-			spentTime = System.currentTimeMillis() - startTime;
-		}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
-		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
-		this.m_solution.evaluate(); //pour avoir le score de la méthode plus proche voisin
-		*/
+		//Plus Proche Voisin
+		
+				/**
+				ArrayList<Integer> villes_non_visitees = Liste_Villes();
+				int n = villes_non_visitees.size();
+				this.m_solution.setCityPosition(villes_non_visitees.get(0), 0);//ajoute ville 0 à la 1ere place de la solution
+				int nb_villes_placees = 1; //nb de ville dans solution
+				do
+				{
+					villes_non_visitees=plus_proche_voisin(n,nb_villes_placees,villes_non_visitees);
+					// int index_depart=0;
+					
+					nb_villes_placees ++;
+					n--;
+					
+					spentTime = System.currentTimeMillis() - startTime;
+				}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
+				this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
+				this.m_solution.evaluate(); //pour avoir le score de la méthode plus proche voisin
+				//*/
+
 		
 		//Recherche local sur le plus proche voisin
 		
@@ -159,7 +189,7 @@ public class TSPSolver {
 				this.m_solution.print(System.err);
 			}
 		} while (cont);
-		*/
+		//*/
 		
 	}
 	
@@ -189,7 +219,6 @@ public class TSPSolver {
 		villes_non_visitees.set(0,villes_non_visitees.get(index_plusproche)); //on met à l'indice 0 la prochaine ville à étudier
 		this.m_solution.setCityPosition(villes_non_visitees.get(0), t); //ajoute ville la plus proche a la solution
 		villes_non_visitees.remove(index_plusproche);//enleve ville visitee de l'arraylist
-		System.out.println(this.m_solution.getObjectiveValue());
 		return villes_non_visitees;
 	}
 	

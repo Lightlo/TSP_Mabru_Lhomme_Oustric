@@ -2,10 +2,9 @@ package tsp;
 
 public class AntColonyOptimization {
 	
-	
 	//Définition des constantes des calculs de l'ACO
-	public static final int NB_ANTS=1000;
-	public static final double RHO = 0.1; // 0<RHO<1 : taux d'évaporation des phéromones
+	public static final int NB_ANTS= 50; // Nombre de fourmis par cycle
+	public static final double RHO = 0.2; // 0<RHO<1 : taux d'évaporation des phéromones
 	
 	//ATTRIBUTS
 	/** Données du problème associé */
@@ -30,8 +29,8 @@ public class AntColonyOptimization {
 		double level_pheromone;
 		for (int i=0;i<NbCities;i++) {
 			for (int j=0;j<NbCities;j++) {
-				level_pheromone = 1;
-				//level_pheromone = Math.random();
+				//level_pheromone = 0.1;
+				level_pheromone = Math.random();
 				this.pheromoneLevels_between_cities[i][j] = level_pheromone;
 			}
 		}
