@@ -119,12 +119,15 @@ public class Main {
 
 		// Create and solve problem
 		try {
+			if(filename.contains("brazil")) {
+				typeInstance = 1;
+			}
 			
 			// Read data
 			Instance data = new Instance(filename, typeInstance);
 			
 			// Create a new problem
-			TSPSolver tsp = new TSPSolver(data,max_time);
+			TSPSolver tsp = new TSPSolver (data,max_time);
 
 			// Solve the problem
 			long t = System.currentTimeMillis();

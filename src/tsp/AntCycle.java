@@ -2,12 +2,14 @@ package tsp;
 
 public class AntCycle {
 	
-	//Définition des constantes des calculs de l'ACO
-	public static final double Q = 100; // 0<Q<1 : Paramètre de réglage ?
+	//Définition des constantes pour l'Ant Colony Optimization Heuristic
+	/** Q : Paramètre de réglage */
+	public static final double Q = 100;
 		
 	//ATTRIBUTS
 	/**
-	 * Ce tableau contient la somme des dépôts de phéromones de chaque trajet d'une ville à une autre des fourmis pendant un cycle
+	 * Cette matrice contient la somme des dépôts de phéromones de chaque trajet d'une ville à une autre des fourmis pendant un cycle
+	 * Cette matrice est symétrique
 	 * #pheromoneDe_between_cities[i][j] est le dépôt de phéromones des fourmis pendant un cycle pour le trajet de la ville i à la ville j
 	 */
 	private double[][] pheromoneDeposit_between_cities;
@@ -15,7 +17,7 @@ public class AntCycle {
 	//CONSTRUCTOR	
 	/**
 	 * Crée un object de la classe AntCycle
-	 * Son attribut pheromoneDeposit_between_cities stocke pendant un cycle/itérations 
+	 * Son attribut pheromoneDeposit_between_cities stocke pendant un cycle/itération
 	 * tous les dépôts des fourmis de ce cycle/itération
 	 * @param NbCities le nombre de villes du problème considéré
 	 */
@@ -84,6 +86,7 @@ public class AntCycle {
 	 *
 	 * @param ant_path les données du trajet de la fourmi
 	 * @param NbCities le nombre de villes du problème considéré
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getSolution()}
 	 */
 	public void stockPheromoneDepositAnt(Solution ant_path) throws Exception {
 		double path_distance = ant_path.getObjectiveValue();

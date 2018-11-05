@@ -72,154 +72,132 @@ public class TSPSolver {
 	{
 		m_solution.print(System.err);
 		
-		// Example of a time loop
+		//Initialisation de la "time loop"
 		long startTime = System.currentTimeMillis();
 		long spentTime = 0;
 		
-		//Détermination Plus Proche Voisin
-		/**
-		ArrayList<Integer> villes_non_visitees = Liste_Villes();
-		int n = villes_non_visitees.size();
-		this.m_solution.setCityPosition(villes_non_visitees.get(0), 0);//ajoute ville 0 à la 1ere place de la solution
-		int nb_villes_placees = 1; //nb de ville dans solution
-		do
-		{
-			villes_non_visitees=plus_proche_voisin(n,nb_villes_placees,villes_non_visitees);
-			nb_villes_placees ++;
-			n--;
-			
-		} while(n>1);
-		this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
-		this.m_solution.evaluate(); //pour avoir le score de la méthode plus proche voisin
-		//*/
+		//On récupère le nombre de villes du problème considéré
+		int NbCities = this.getSolution().getInstance().getNbCities();
+		 
+	    //On initialise la solution à la solution du PPV   
+	    this.m_solution = this.PPV();
+	    
+	    Solution new_solution; //Solution à comparer avec la solution courante
+	    Solution memory = this.m_solution; //Solution mémoire pour repérer la fin des améliorations
 		
-		//AntColonyOptimization
-		//**
-		//Initialisation de la méthode heuristique ACO (Ant Colony Optimization)
-		AntColonyOptimization aco = new AntColonyOptimization(m_instance);
-		Ant first_ant = new Ant(aco);
-		m_solution = first_ant.processAnt();
-		
-		//Prise en compte de la solution PPV avec des dépôts de phéromones équivalent à un cycle
-		/**
-		AntCycle ant_cycle = new AntCycle(aco.getInstance().getNbCities());
-		for (int l=0;l<(AntColonyOptimization.NB_ANTS/10);l++) {
-			ant_cycle.stockPheromoneDepositAnt(m_solution);
-		}
-		aco.addPheromoneDeposits_EndCycle(ant_cycle);
-		//*/		
-		
-		//Initialisation de la population de fourmi pour un cycle/itération avant évaporation
-		AntCycle ant_cycle = new AntCycle(aco.getInstance().getNbCities());
-		int i = 1; //Compteur des cycles
-		int k = AntColonyOptimization.NB_ANTS;
-		
-		//Recherche heuristique
 		while (spentTime < m_timeLimit * 1000) {
-			Ant new_ant = new Ant(aco);
-			Solution candidat = new_ant.processAnt();
-			ant_cycle.stockPheromoneDepositAnt(candidat);
-			if (candidat.getObjectiveValue()<m_solution.getObjectiveValue()) {
-				m_solution = candidat;
-				//Affichage lorsque amélioration
-				System.out.println("Cycle : " +i+ " , Ant " +(AntColonyOptimization.NB_ANTS - k + 1) + " , new_distance: " + m_solution.getObjectiveValue());	
-			}
-			k--;
-			if (k==0) { //Fin du cycle/itération : aco.NB_ANTS sont allées dans le parcours
-				//Les pistes de phéromones s'évaporent en partie et on ajoute les phéromones qui viennent d'être déposées
-				aco.evaporationPlusAddDeposits_EndCycle(ant_cycle);
-				//On prépare un nouveau cycle/itération : 
-				//  - aco.NB_ANTS vont parcourir le parcours
-				//  - le stock des dépôts de pheromones du cycle est réinitialisé (mis à 0.0)
-				k = AntColonyOptimization.NB_ANTS;
-				ant_cycle = new AntCycle(aco.getInstance().getNbCities());
-				i++;
-			}
-			
-			spentTime = System.currentTimeMillis() - startTime;
+			 
+			//Mise en place de l'algorithme d'amélioration de la méthode 2-opt
+	        for (int i=1; i < NbCities-1; i++) {
+	            for (int j= i+1; j<NbCities; j++) {
+	                new_solution = this.m_solution.TwoOpt_Swap(i, j);
+	                
+	                if ( new_solution.getObjectiveValue() < this.m_solution.getObjectiveValue() ) {
+	                	//Cas d'une amélioration de la longueur de la solution
+	                    this.m_solution = new_solution;
+	                }
+	            }
+	        }
+	        
+	        //On regarde si le processus améliore encore la solution après une itération du 2-opt
+	        if (memory.getObjectiveValue()==this.m_solution.getObjectiveValue()) {
+	        	spentTime = m_timeLimit * 1000; //On force la sortie de la "time loop"
+	        } else {
+	        	spentTime = System.currentTimeMillis() - startTime;
+	        	memory = this.m_solution;
+	        }	
 		}
-		//*/
-		
-		//Plus Proche Voisin
-		
-				/**
-				ArrayList<Integer> villes_non_visitees = Liste_Villes();
-				int n = villes_non_visitees.size();
-				this.m_solution.setCityPosition(villes_non_visitees.get(0), 0);//ajoute ville 0 à la 1ere place de la solution
-				int nb_villes_placees = 1; //nb de ville dans solution
-				do
-				{
-					villes_non_visitees=plus_proche_voisin(n,nb_villes_placees,villes_non_visitees);
-					// int index_depart=0;
-					
-					nb_villes_placees ++;
-					n--;
-					
-					spentTime = System.currentTimeMillis() - startTime;
-				}while(spentTime < (m_timeLimit * 1000 - 100) && n>1);
-				this.m_solution.setCityPosition(villes_non_visitees.get(0),this.m_instance.getNbCities()-1);
-				this.m_solution.evaluate(); //pour avoir le score de la méthode plus proche voisin
-				//*/
-
-		
-		//Recherche local sur le plus proche voisin
-		
-		/**
-		Solution candidat = this.m_solution.copy(); //Copie de la solution plus proche voisin sur laquelle on fera des permutations + itérations
-		long score_candidat = this.m_solution.getObjectiveValue();
-		long score_solution = candidat.getObjectiveValue();
-		boolean cont; //Condition d'arrêt de la boucle
-		do {
-			cont = false;
-			for(int i=1;i<=this.m_instance.getNbCities()-3;i++) { 
-				for(int j=i+1;j<=this.m_instance.getNbCities()-2;j++) { //i<j pour éviter les doublons
-					Solution provisoire = this.m_solution.copy(); //2ème copie de la solution pour tester si ell est meilleure ou non
-					provisoire.swap(i,j); //permutations de i et j dans le tableau des villes (voir classe Solution pour fonction swap) 
-					long score_provisoire =provisoire.getObjectiveValue();
-					if(score_provisoire<score_candidat) { //test du score: 
-						score_candidat=score_provisoire; //si il est inférieur au candidat proposé, on garde celui-ci pour la prochaine itération
-						candidat=provisoire; //et devient le candidat
-					}
-				}
-			}
-			if(score_solution>score_candidat) { //Si la condition est vérifié: le score est amélioré
-				cont=true; //Condition d'arrêt devient vrai
-				score_solution=score_candidat; //La solution finale prend alors la valeur du candidat
-				this.m_solution=candidat;
-				this.m_solution.print(System.err);
-			}
-		} while (cont);
-		//*/
 		
 	}
 	
 	//-----------------------------
 	//-----FONCTIONS ANNEXES-------
 	//-----------------------------
-
 	
-	public ArrayList<Integer> Liste_Villes(){
-		ArrayList<Integer> villes = new ArrayList<Integer>();
-		for(int i=0; i<this.m_instance.getNbCities();i++) {
-			villes.add(i);
+	/**
+	 * Renvoie la solution par l'algorithme du PPV à partir de la ville d'origine/d'arrivée 0
+	 * 
+	 * @return la solution Solution par l'algorithme du PPV (plus proche voisin) du problème considéré
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getSolution()}, {@link #getInstance()}
+	 */
+	public Solution PPV() throws Exception {
+		//Initialisation des villes non visitées sans la ville d'origine (0)
+		int NbCities = this.getSolution().getInstance().getNbCities();
+		ArrayList<Integer> UnvisitedCities = initializeUnvisitedCities(NbCities);
+		
+		//Prise en compte de la ville de départ/d'arrivée (0)
+		this.getSolution().setCityPosition(0, 0);
+		int NbVisitedCities = 1; //Compteur du nb de villes dans la solution
+		
+		//Recherche du plus proche voisin (PPV) à chaque itération jusqu'à ce que toutes les villes soient visitées
+		while (NbVisitedCities < NbCities-1) {
+			UnvisitedCities = NextUnvisitedCitiesViaPPV(NbVisitedCities,UnvisitedCities);
+			NbVisitedCities ++;
 		}
-		return villes;
+		
+		//Ajout de la dernière ville non visitée (dernier élément de l'ArrayList UnVisitedCities)
+		this.getSolution().setCityPosition(UnvisitedCities.get(1), NbVisitedCities);
+		//Ajout de la distance entre l'avant-dernière et la dernière ville visitées
+		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue()
+				+ this.getSolution().getInstance()
+					.getDistances( this.getSolution().getCity(NbCities-2), this.getSolution().getCity(NbCities-1)));
+		//Ajout de la ville d'origine (0) en tant que ville d'arrivée dans la solution
+		this.getSolution().setCityPosition(0,NbCities);
+		//Ajout de la distance entre l'ultime ville visitée et la ville d'arrivée
+		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue()
+				+ this.getSolution().getInstance()
+					.getDistances( this.getSolution().getCity(NbCities-1), 0));
+		
+		//renvoie de la solution PPV
+		return this.getSolution();
 	}
 
-	public ArrayList<Integer> plus_proche_voisin(int n, int t, ArrayList<Integer> villes_non_visitees) throws Exception{
-		int index_plusproche = 1;
-		long dist_min = this.m_instance.getDistances(villes_non_visitees.get(0), villes_non_visitees.get(1));//init longueur min
-		for(int i=2;i<n;i++) { // cherche ville la plus proche dans le tableau
-			if(this.m_instance.getDistances(villes_non_visitees.get(0), villes_non_visitees.get(i))<dist_min) {
-				index_plusproche = i;
-				dist_min=this.m_instance.getDistances(villes_non_visitees.get(0), villes_non_visitees.get(index_plusproche));
+	/**
+	 * Initialise une ArrayList avec l'ensemble des villes du problème à visiter
+	 * @param NbCities le nombre de villes du problème considéré
+	 * @return une ArrayList d'entiers contenant l'ensemble des villes représentées par les entiers de 0 inclu à NbCities exclu
+	 */
+	public ArrayList<Integer> initializeUnvisitedCities(int NbCities){
+		ArrayList<Integer> UnvisitedCities = new ArrayList<Integer>();
+		for(int i=0; i<NbCities;i++) {
+			UnvisitedCities.add(i);
+		}
+		return UnvisitedCities;
+	}
+
+	/**
+	 * Permet de trouver la prochaine ville la plus proche à visiter,
+	 * de mettre à jour la solution correspondant au PPV avec cette ville,
+	 * et de mettre à jour l'ArrayList contenant les villes non visitées.
+	 * @param NbVisitedCities le nombre de villes déjà visitées
+	 * @param UnvisitedCities ArrayList contenant l'ensemble des villes du problème qu'il reste à visiter
+	 * @return l'ArrayList d'entiers contenant l'ensemble des villes qu'il reste à visiter
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getSolution()}, {@link #getInstance()}
+	 */
+	public ArrayList<Integer> NextUnvisitedCitiesViaPPV(int NbVisitedCities, ArrayList<Integer> UnvisitedCities) throws Exception{
+		//Initialisation de la position du PPV sachant que la position 0 est la dernière ville visitée
+		int PPVposition = 1;
+		//Initialisation de la distance au PPV depuis la dernière ville visitée
+		long PPVdistance = this.getSolution().getInstance()
+				.getDistances(UnvisitedCities.get(0), UnvisitedCities.get(PPVposition)), new_distance;
+		
+		//Recherche du PPV dans les villes non visitées
+		for (int i=2;i<UnvisitedCities.size();i++) {
+			new_distance = this.getSolution().getInstance()
+					.getDistances(UnvisitedCities.get(0), UnvisitedCities.get(i));
+			if(new_distance < PPVdistance) {
+				PPVposition = i;
+				PPVdistance = new_distance;
 			}
 		}
-		this.m_solution.setObjectiveValue(this.m_solution.getObjectiveValue()+dist_min); //incrémentation de la longueur tot
-		villes_non_visitees.set(0,villes_non_visitees.get(index_plusproche)); //on met à l'indice 0 la prochaine ville à étudier
-		this.m_solution.setCityPosition(villes_non_visitees.get(0), t); //ajoute ville la plus proche a la solution
-		villes_non_visitees.remove(index_plusproche);//enleve ville visitee de l'arraylist
-		return villes_non_visitees;
+		
+		//Mise à jour de la solution (contenu, objectiveValue) et de l'ArrayList des listes non visitées
+		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue() + PPVdistance);
+		UnvisitedCities.set(0,UnvisitedCities.get(PPVposition)); //On met à la position 0 le dernier PPV visité
+		UnvisitedCities.remove(PPVposition); //Suppression de la ville visitée de l'ArrayList UnvisitedCities
+		this.getSolution().setCityPosition(UnvisitedCities.get(0), NbVisitedCities); //ajoute ville la plus proche a la solution
+		
+		return UnvisitedCities;
 	}
 	
 	// -----------------------------

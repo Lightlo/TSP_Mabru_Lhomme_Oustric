@@ -2,19 +2,43 @@ package tsp;
 
 public class Ant {
 	
-	//Définition des constantes des calculs de l'ACO
-	public static final double ALPHA = 1; // 0<=ALPHA : Contrôle l'intensité d'une arête
-	public static final double BETA = 2; // 1<=BETA : Contrôle la visibilité d'une arête
-	public static final double GAMMA = 0.000000005; // 0<GAMMA<1 : Probabilité non nulle d'exploration
+	//Définition des constantes pour l'Ant Colony Optimization Heuristic
+	/** 0<=ALPHA : Contrôle l'intensité d'une arête */
+	public static final double ALPHA = 1;
+	/** 1<=BETA : Contrôle la visibilité d'une arête */
+	public static final double BETA = 2;
+	/** 0<GAMMA<1 : Probabilité non nulle d'exploration des villes non visitées*/
+	public static final double GAMMA = 0.000000005; 
 	
 	//ATTRIBUTS
+	/** 
+	 * Objet Solution construit à partir du parcours de la fourmi
+	 * path_ant = null à la construction, la méthode #{@link processAnt()} permet d'avoir : path_ant = SolutionIntelligible
+	 */
 	private Solution path_ant = null;
-	private boolean[] visited; //La case x du tableau indique si la ville x a été visitée
+	/**
+	 * Ce tableau de booléens indique les villes déjà visitées ou non par la fourmi
+	 * #visited[i] est le boolean vrai si la ville a été visitée, faux sinon
+	 */
+	private boolean[] visited;
+	/**
+	 * Objet AntColonyOptimization dont dépend la fourmi 
+	 * (contenant les donnnées du problème et les niveaux de phéromones */
 	private AntColonyOptimization aco;
+	
+	/** Ville d'origine du parcours de la fourmi */
 	private int originCity = 0; //On fixe la ville de départ/d'arrivée à 0
+	
+	/** Nombre de villes du problème considéré (static pour la lisibilité du code) */
 	public static int NbCities;
 	
 	//CONSTRUCTOR
+	/**
+	 * Crée un object de la classe Ant (une nouvelle fourmi) pour l'objet aco AntColonyOptimization
+	 * Attention : la Solution path_ant de la fourmi n'est pas intelligible à sa construction
+	 * Pour rendre la solution intelligible, il faut appliqué à la foumi la méthode #{@link processAnt()}
+	 * @param aco L'objet AntColonyOptimisation dont dépend la fourmi
+	 */
 	public Ant(AntColonyOptimization aco) {
 		this.aco = aco;
 		NbCities = this.aco.getInstance().getNbCities();
@@ -22,6 +46,10 @@ public class Ant {
 	}
 	
 	//GETTERS
+	/**
+	 * 
+	 * @return
+	 */
 	public Solution getPath_ant() {
 		return this.path_ant;
 	}
@@ -37,7 +65,7 @@ public class Ant {
 	
 	//METHODS
 	
-	public Solution processAnt() throws Exception {
+	public void processAnt() throws Exception {
 		//Initialisation
 		int[] path = new int [NbCities+1];
 		long path_distance = (long)0.0;
@@ -68,7 +96,7 @@ public class Ant {
 		//Prise en compte Fermeture du chemin sur la ville de départ OriginCity
 		path_distance += this.getACO().getInstance().getDistances(j, 0);
 		
-		return new Solution(this.getACO().getInstance(),path,path_distance);
+		this.path_ant = new Solution(this.getACO().getInstance(),path,path_distance);
 	}
 	
 	public void initializeVisitedCities(int originCity) {
@@ -81,6 +109,7 @@ public class Ant {
 		}
 	}
 	/**
+	Cas d'une recherche sans cycle/itération
 	public void adjustPheromoneLevel(int i, int j, long path_distance) {
 		double oldPheromoneLevel = this.getACO().getPheromoneLevel(i,j);
 		// Cycle/Itération de NB_ANTS fourmis

@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * @version 2017
  * 
  */
-public class TSPSolver_TwoOpt_PPV {
+public class TSPSolver_PPV {
 
 	// -----------------------------
 	// ----- ATTRIBUTS -------------
@@ -44,7 +44,7 @@ public class TSPSolver_TwoOpt_PPV {
 	 * @param instance the instance of the problem
 	 * @param timeLimit the time limit in seconds
 	 */
-	public TSPSolver_TwoOpt_PPV(Instance instance, long timeLimit) {
+	public TSPSolver_PPV(Instance instance, long timeLimit) {
 		m_instance = instance;
 		m_solution = new Solution(m_instance);
 		m_timeLimit = timeLimit;
@@ -72,42 +72,11 @@ public class TSPSolver_TwoOpt_PPV {
 		
 		m_solution.print(System.err);
 		
-		//Initialisation de la "time loop"
-		long startTime = System.currentTimeMillis();
-		long spentTime = 0;
-		
-		//On récupère le nombre de villes du problème considéré
-		int NbCities = this.getSolution().getInstance().getNbCities();
+		//La méthode du PPV sur les instances étudiées se termine bien largement en moins de 60s
 		 
-	    //On initialise la solution à la solution du PPV   
+	    //La solution est la solution de l'algorithme du PPV    
 	    this.m_solution = this.PPV();
 	    
-	    Solution new_solution; //Solution à comparer avec la solution courante
-	    Solution memory = this.m_solution; //Solution mémoire pour repérer la fin des améliorations
-		
-		while (spentTime < m_timeLimit * 1000) {
-			 
-			//Mise en place de l'algorithme d'amélioration de la méthode 2-opt
-	        for (int i=1; i < NbCities-1; i++) {
-	            for (int j= i+1; j<NbCities; j++) {
-	                new_solution = this.m_solution.TwoOpt_Swap(i, j);
-	                
-	                if ( new_solution.getObjectiveValue() < this.m_solution.getObjectiveValue() ) {
-	                	//Cas d'une amélioration de la longueur de la solution
-	                    this.m_solution = new_solution;
-	                }
-	            }
-	        }
-	        
-	        //On regarde si le processus améliore encore la solution après une itération du 2-opt
-	        if (memory.getObjectiveValue()==this.m_solution.getObjectiveValue()) {
-	        	spentTime = m_timeLimit * 1000; //On force la sortie de la "time loop"
-	        } else {
-	        	spentTime = System.currentTimeMillis() - startTime;
-	        	memory = this.m_solution;
-	        }
-		}
-		
 	}
 	
 	//-----------------------------

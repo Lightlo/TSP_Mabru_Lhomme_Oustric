@@ -1,5 +1,7 @@
 package tsp;
 
+import java.util.ArrayList;
+
 /**
  * 
  * This class is the place where you should enter your code and from which you can create your own objects.
@@ -71,16 +73,27 @@ public class TSPSolver_ACOHeuristic {
 		
 		m_solution.print(System.err);
 		
-		// Example of a time loop
+		//Initialisation de la "time loop"
 		long startTime = System.currentTimeMillis();
 		long spentTime = 0;
 		
 		//AntColonyOptimization
-		//**
+		
 		//Initialisation de la méthode heuristique ACO (Ant Colony Optimization)
 		AntColonyOptimization aco = new AntColonyOptimization(m_instance);
 		Ant first_ant = new Ant(aco);
-		m_solution = first_ant.processAnt();
+		first_ant.processAnt();
+		m_solution = first_ant.getPath_ant();
+		
+		//Prise en compte de la solution PPV avec des dépôts de phéromones équivalent à un cycle
+		/**
+		Solution PPV = this.PPV();
+		AntCycle ant_cycle_education = new AntCycle(aco.getInstance().getNbCities());
+		for (int l=0;l<(AntColonyOptimization.NB_ANTS);l++) {
+			ant_cycle_education.stockPheromoneDepositAnt(PVV);
+		}
+		aco.addPheromoneDeposits_EndCycle(ant_cycle_education);
+		//*/		
 		
 		//Initialisation de la population de fourmi pour un cycle/itération avant évaporation
 		AntCycle ant_cycle = new AntCycle(aco.getInstance().getNbCities());
@@ -88,9 +101,12 @@ public class TSPSolver_ACOHeuristic {
 		int k = AntColonyOptimization.NB_ANTS;
 		
 		//Recherche heuristique
+		//Les résultats ne montrent pas la réelle influence des phéromones déposées par les fourmis
+		//Si on avait eu une solution convergente, on aurait limité temporellement cette heuristique pour ensuite utiliser un algorithme d'amélioration
 		while (spentTime < m_timeLimit * 1000) {
-			Ant new_ant = new Ant(aco);
-			Solution candidat = new_ant.processAnt();
+			Ant new_ant = new Ant(aco);	//Création d'une nouvelle fourmi
+			new_ant.processAnt();		//Permet de calculer la solution intelligible
+			Solution candidat = new_ant.getPath_ant();	//On récupère la solution intelligible de cette fourmi
 			ant_cycle.stockPheromoneDepositAnt(candidat);
 			if (candidat.getObjectiveValue()<m_solution.getObjectiveValue()) {
 				m_solution = candidat;
@@ -111,7 +127,7 @@ public class TSPSolver_ACOHeuristic {
 			
 			spentTime = System.currentTimeMillis() - startTime;
 		}
-		//*/
+
 				
 	}
 	
@@ -119,7 +135,92 @@ public class TSPSolver_ACOHeuristic {
 	//-----FONCTIONS ANNEXES-------
 	//-----------------------------
 
-	
+	/**
+	 * Renvoie la solution par l'algorithme du PPV à partir de la ville d'origine/d'arrivée 0
+	 * 
+	 * @return la solution Solution par l'algorithme du PPV (plus proche voisin) du problème considéré
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getSolution()}, {@link #getInstance()}
+	 */
+	public Solution PPV() throws Exception {
+		//Initialisation des villes non visitées sans la ville d'origine (0)
+		int NbCities = this.getSolution().getInstance().getNbCities();
+		ArrayList<Integer> UnvisitedCities = initializeUnvisitedCities(NbCities);
+		
+		//Prise en compte de la ville de départ/d'arrivée (0)
+		this.getSolution().setCityPosition(0, 0);
+		int NbVisitedCities = 1; //Compteur du nb de villes dans la solution
+		
+		//Recherche du plus proche voisin (PPV) à chaque itération jusqu'à ce que toutes les villes soient visitées
+		while (NbVisitedCities < NbCities-1) {
+			UnvisitedCities = NextUnvisitedCitiesViaPPV(NbVisitedCities,UnvisitedCities);
+			NbVisitedCities ++;
+		}
+		
+		//Ajout de la dernière ville non visitée (dernier élément de l'ArrayList UnVisitedCities)
+		this.getSolution().setCityPosition(UnvisitedCities.get(1), NbVisitedCities);
+		//Ajout de la distance entre l'avant-dernière et la dernière ville visitées
+		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue()
+				+ this.getSolution().getInstance()
+					.getDistances( this.getSolution().getCity(NbCities-2), this.getSolution().getCity(NbCities-1)));
+		//Ajout de la ville d'origine (0) en tant que ville d'arrivée dans la solution
+		this.getSolution().setCityPosition(0,NbCities);
+		//Ajout de la distance entre l'ultime ville visitée et la ville d'arrivée
+		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue()
+				+ this.getSolution().getInstance()
+					.getDistances( this.getSolution().getCity(NbCities-1), 0));
+		
+		//renvoie de la solution PPV
+		return this.getSolution();
+	}
+
+	/**
+	 * Initialise une ArrayList avec l'ensemble des villes du problème à visiter
+	 * @param NbCities le nombre de villes du problème considéré
+	 * @return une ArrayList d'entiers contenant l'ensemble des villes représentées par les entiers de 0 inclu à NbCities exclu
+	 */
+	public ArrayList<Integer> initializeUnvisitedCities(int NbCities){
+		ArrayList<Integer> UnvisitedCities = new ArrayList<Integer>();
+		for(int i=0; i<NbCities;i++) {
+			UnvisitedCities.add(i);
+		}
+		return UnvisitedCities;
+	}
+
+	/**
+	 * Permet de trouver la prochaine ville la plus proche à visiter,
+	 * de mettre à jour la solution correspondant au PPV avec cette ville,
+	 * et de mettre à jour l'ArrayList contenant les villes non visitées.
+	 * @param NbVisitedCities le nombre de villes déjà visitées
+	 * @param UnvisitedCities ArrayList contenant l'ensemble des villes du problème qu'il reste à visiter
+	 * @return l'ArrayList d'entiers contenant l'ensemble des villes qu'il reste à visiter
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getSolution()}, {@link #getInstance()}
+	 */
+	public ArrayList<Integer> NextUnvisitedCitiesViaPPV(int NbVisitedCities, ArrayList<Integer> UnvisitedCities) throws Exception{
+		//Initialisation de la position du PPV sachant que la position 0 est la dernière ville visitée
+		int PPVposition = 1;
+		//Initialisation de la distance au PPV depuis la dernière ville visitée
+		long PPVdistance = this.getSolution().getInstance()
+				.getDistances(UnvisitedCities.get(0), UnvisitedCities.get(PPVposition)), new_distance;
+		
+		//Recherche du PPV dans les villes non visitées
+		for (int i=2;i<UnvisitedCities.size();i++) {
+			new_distance = this.getSolution().getInstance()
+					.getDistances(UnvisitedCities.get(0), UnvisitedCities.get(i));
+			if(new_distance < PPVdistance) {
+				PPVposition = i;
+				PPVdistance = new_distance;
+			}
+		}
+		
+		//Mise à jour de la solution (contenu, objectiveValue) et de l'ArrayList des listes non visitées
+		this.getSolution().setObjectiveValue(this.getSolution().getObjectiveValue() + PPVdistance);
+		UnvisitedCities.set(0,UnvisitedCities.get(PPVposition)); //On met à la position 0 le dernier PPV visité
+		UnvisitedCities.remove(PPVposition); //Suppression de la ville visitée de l'ArrayList UnvisitedCities
+		this.getSolution().setCityPosition(UnvisitedCities.get(0), NbVisitedCities); //ajoute ville la plus proche a la solution
+		
+		return UnvisitedCities;
+	}
+
 	
 	// -----------------------------
 	// ----- GETTERS / SETTERS -----
