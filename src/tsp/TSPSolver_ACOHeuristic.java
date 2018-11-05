@@ -1,5 +1,4 @@
 package tsp;
-import java.util.ArrayList; 
 
 /**
  * 

@@ -3,7 +3,7 @@ package tsp;
 public class AntCycle {
 	
 	//Définition des constantes des calculs de l'ACO
-	public static final double Q = 0.005; // 0<Q<1 : ...
+	public static final double Q = 0.005; // 0<Q<1 : Paramètre de réglage
 		
 	//ATTRIBUTS
 	/**
