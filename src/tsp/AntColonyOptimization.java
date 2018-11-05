@@ -4,7 +4,7 @@ public class AntColonyOptimization {
 	
 	//Définition des constantes des calculs de l'ACO
 	public static final int NB_ANTS= 50; // Nombre de fourmis par cycle
-	public static final double RHO = 0.2; // 0<RHO<1 : taux d'évaporation des phéromones
+	public static final double RHO = 0.5; // 0<RHO<1 : taux d'évaporation des phéromones
 	
 	//ATTRIBUTS
 	/** Données du problème associé */

@@ -124,7 +124,7 @@ public class Main {
 			Instance data = new Instance(filename, typeInstance);
 			
 			// Create a new problem
-			TSPSolver tsp = new TSPSolver(data,max_time);
+			TSPSolver_TwoOpt_PPV tsp = new TSPSolver_TwoOpt_PPV(data,max_time);
 
 			// Solve the problem
 			long t = System.currentTimeMillis();

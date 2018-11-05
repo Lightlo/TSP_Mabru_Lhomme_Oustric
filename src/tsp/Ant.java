@@ -3,9 +3,9 @@ package tsp;
 public class Ant {
 	
 	//Définition des constantes des calculs de l'ACO
-	public static final double ALPHA = 0.01; // 0<=ALPHA : Contrôle l'intensité d'une arête
-	public static final double BETA = 9.5; // 1<=BETA : Contrôle la visibilité d'une arête
-	public static final double GAMMA = 0.1; // 0<GAMMA<1 : Probabilité non nulle d'exploration
+	public static final double ALPHA = 1; // 0<=ALPHA : Contrôle l'intensité d'une arête
+	public static final double BETA = 2; // 1<=BETA : Contrôle la visibilité d'une arête
+	public static final double GAMMA = 0.000000005; // 0<GAMMA<1 : Probabilité non nulle d'exploration
 	
 	//ATTRIBUTS
 	private Solution path_ant = null;

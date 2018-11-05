@@ -82,6 +82,7 @@ public class TSPSolver_TwoOpt_PPV {
 	    this.m_solution = this.PPV();
 	    //**
 	    Solution new_solution;
+	    Solution memory = this.m_solution;
 	    
 	    int k = 0;
 		
@@ -101,8 +102,14 @@ public class TSPSolver_TwoOpt_PPV {
 	                }
 	            }
 	        }
+	        //On regarde si le processus améliore encore la solution après une boucle
+	        if (memory.getObjectiveValue()==this.m_solution.getObjectiveValue()) {
+	        	spentTime = m_timeLimit * 1000; //On force la sortie de la time loop
+	        } else {
+	        	spentTime = System.currentTimeMillis() - startTime;
+	        	memory = this.m_solution;
+	        }
 			
-			spentTime = System.currentTimeMillis() - startTime;
 		}
 		//*/
 	}
