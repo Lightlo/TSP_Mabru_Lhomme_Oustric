@@ -23,7 +23,7 @@ public class Ant {
 	private boolean[] visited;
 	/**
 	 * Objet AntColonyOptimization dont dépend la fourmi 
-	 * (contenant les donnnées du problème et les niveaux de phéromones */
+	 * (contenant les donnnées du problème et les niveaux de phéromones) */
 	private AntColonyOptimization aco;
 	
 	/** Ville d'origine du parcours de la fourmi */
@@ -46,25 +46,41 @@ public class Ant {
 	}
 	
 	//GETTERS
+	
 	/**
-	 * 
-	 * @return
+	 * Note : path_ant = null à la construction, la méthode #{@link processAnt()} permet d'avoir : path_ant = SolutionIntelligible
+	 * @return l'objet Solution construit à partir du parcours de la fourmi
 	 */
 	public Solution getPath_ant() {
 		return this.path_ant;
 	}
+	/**
+	 * @return le tableau de booléens indiquant les villes déjà visitées ou non par la fourmi
+	 */
 	public boolean[] getVisitedCities() {
 		return this.visited;
 	}
+	/**
+	 * @return la ville d'origine du parcours de la fourmi
+	 */
 	public int getOriginCity() {
 		return this.originCity;
 	}
+	/**
+	 * @return l'objet AntColonyOptimization dont dépend la fourmi (contenant les donnnées du problème et les niveaux de phéromones)
+	 */
 	public AntColonyOptimization getACO() {
 		return this.aco;
 	}
 	
 	//METHODS
 	
+	/**
+	 * Détermine en fonction des phéromones sur les arêtes des villes, le parcours de la fourmi
+	 * La solution path_ant est alors bien la solution intelligible d'une fourmi qui vient d'être construite
+	 * Note : Cette méthode doit être appelée une seule fois sur une fourmi Ant tout juste construite
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getJ()}
+	 */
 	public void processAnt() throws Exception {
 		//Initialisation
 		int[] path = new int [NbCities+1];
@@ -81,7 +97,7 @@ public class Ant {
 		int i = this.getOriginCity();
 		int j = this.getJ(i);
 		
-		//Construction du chemin path de la fourmi
+		//Construction progressive du chemin path de la fourmi
 		while (NbVisitedCities<NbCities) {
 			path[NbVisitedCities] = j;
 			path_distance += this.getACO().getInstance().getDistances(i, j);
@@ -96,9 +112,14 @@ public class Ant {
 		//Prise en compte Fermeture du chemin sur la ville de départ OriginCity
 		path_distance += this.getACO().getInstance().getDistances(j, 0);
 		
+		//Via le set de la solution à l'instance path_ant, la solution est désormais intelligible
 		this.path_ant = new Solution(this.getACO().getInstance(),path,path_distance);
 	}
 	
+	/**
+	 * Initialise à false toutes les villes visitées par la fourmi sauf sa ville d'origine originCity
+	 * @param originCity la ville d'origine du parcours de la fourmi
+	 */
 	public void initializeVisitedCities(int originCity) {
 		for (int i=0;i<NbCities;i++) {
 			if (i==originCity) {
@@ -108,17 +129,14 @@ public class Ant {
 			}
 		}
 	}
+	
 	/**
-	Cas d'une recherche sans cycle/itération
-	public void adjustPheromoneLevel(int i, int j, long path_distance) {
-		double oldPheromoneLevel = this.getACO().getPheromoneLevel(i,j);
-		// Cycle/Itération de NB_ANTS fourmis
-		double newPheromoneLevel = (oldPheromoneLevel + (Q/path_distance));
-		//double newPheromoneLevel = ((1-RHO)*oldPheromoneLevel + (Q/path_distance));
-		this.getACO().setPheromoneLevel(i, j, newPheromoneLevel);
-	}
-	*/
-	//Determine Next City J à visiter
+	 * Détermine la ville à visiter par la fourmi depuis la ville i
+	 * de manière aléatoire mais influencée par les niveaux de phéromones sur les arêtes
+	 * @param i la ville depuis laquelle la fourmi cherche une autre ville à rejoindre, une arête à emprunter
+	 * @return la prochaine ville à visiter par la fourmi
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getNextCitiesProbabilites()}
+	 */
 	public int getJ(int i) throws Exception {
 		double random = Math.random();
 		double[] NextCitiesProbabilities = this.getNextCitiesProbabilities(i);
@@ -133,19 +151,36 @@ public class Ant {
 		}
 		return (nextJ-1);
 	}
+	
+	/**
+	 * A partir de la ville i, la méthode retourne les probabilités normalisées de rejoindre une autre ville x
+	 * A la case x, on a la probabilité normalisée de la fourmi de rejoindre la ville x depuis la ville x, d'emprunter l'arête (i,x)
+	 * @param i la ville depuis laquelle la fourmi cherche une autre ville à rejoindre, une arête à emprunter
+	 * @return le tableau des probabilités normalisées pour déterminer la prochaine ville à visiter
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getNumeratorProba()}
+	 */
 	public double[] getNextCitiesProbabilities(int i) throws Exception {
 		//Initialisation du tableau des probabilités pour aller la ville suivante à visiter
 		double[] NextCitiesProbabilities = new double[NbCities];
 		for (int j=0;j<NbCities;j++) {
 			NextCitiesProbabilities[j] = 0.0;
 		}
-		//Construction du tableau des probabilités pour choisir la ville suivante à visiter
+		//Construction du tableau des probabilités normalisées pour choisir la ville suivante à visiter
 		double denominator = this.getDenominatorProba(i, NextCitiesProbabilities);
 		for (int j=0;j<NbCities;j++) {
 			NextCitiesProbabilities[j] = (this.getNumeratorProba(i, j) / denominator);
 		}
 		return NextCitiesProbabilities;
 	}
+	
+	/**
+	 * A partir de la ville i, la méthode retourne le dénominateur qui permet de normaliser les chances de visite
+	 * Le quotient qui utilise ce dénominateur donne la probabilité à la fourmi d'aller vers une ville, d'emprunter une arête
+	 * @param i la ville depuis laquelle la fourmi cherche une autre ville à rejoindre, une arête à emprunter
+	 * @param NextCitiesProbabilities le tableau de probabilités de visite depuis la ville i
+	 * @return le dénominateur pour la normalisation des chances de visite
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getNumeratorProba()}
+	 */
 	public double getDenominatorProba(int i, double[] NextCitiesProbabilities) throws Exception {
 		double denominator = 0.0;
 		for (int j=0;j<NbCities;j++) {
@@ -160,6 +195,14 @@ public class Ant {
 		}
 		return denominator;
 	}
+	
+	/**
+	 * A partir de la ville i, la méthode retourne le numérateur du quotient donnant la probabilité d'aller vers la ville j pour la fourmi
+	 * @param i la ville depuis laquelle la fourmi cherche une autre ville à rejoindre, une arête à emprunter
+	 * @param j la ville vers laquelle la fourmi peut envisager d'aller depuis la ville i
+	 * @return le numérateur de la probabilité, la chance que la fourni aille à la ville j, emprunte l'arête (i,j)
+	 * @throws Exception Voir les exceptions renvoyées par {@link #getDistance()} (classe Instance)
+	 */
 	public double getNumeratorProba (int i, int j) throws Exception {
 		double PheromoneLevel = this.getACO().getPheromoneLevel(i, j);
 		if (PheromoneLevel != 0.0 && !this.getVisitedCities()[j]) {
@@ -170,4 +213,16 @@ public class Ant {
 		}
 	}
 	
+	//Méthode dans le cas d'une recherche sans cycle/itération
+		/**
+		public void adjustPheromoneLevel(int i, int j, long path_distance) {
+			double oldPheromoneLevel = this.getACO().getPheromoneLevel(i,j);
+			// Cycle/Itération de NB_ANTS fourmis
+			double newPheromoneLevel = (oldPheromoneLevel + (Q/path_distance));
+			//double newPheromoneLevel = ((1-RHO)*oldPheromoneLevel + (Q/path_distance));
+			this.getACO().setPheromoneLevel(i, j, newPheromoneLevel);
+		}
+		*/
+		
+		
 }

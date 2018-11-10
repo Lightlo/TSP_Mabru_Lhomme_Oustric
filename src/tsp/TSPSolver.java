@@ -70,7 +70,7 @@ public class TSPSolver {
 	 */
 	public void solve() throws Exception
 	{
-		m_solution.print(System.err);
+		//m_solution.print(System.err);
 		
 		//Initialisation de la "time loop"
 		long startTime = System.currentTimeMillis();
